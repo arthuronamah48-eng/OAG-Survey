@@ -450,7 +450,7 @@ async function submitSurvey(){
 
   if(CONFIGURED){
     try{
-      const formData = new FormData();
+      const formData = new URLSearchParams();
       formData.append(ENTRY_RESPONSE_ID, id);
       formData.append(ENTRY_ANSWERS_JSON, JSON.stringify(payload));
       await fetch(GOOGLE_FORM_URL, {
