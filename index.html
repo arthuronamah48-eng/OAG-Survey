@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OAG Communication & Visibility Study</title>
+<style>
+  :root{
+    --navy:#1C2B4A;
+    --navy-light:#2E4370;
+    --gold:#B8863B;
+    --gold-light:#E7D2A6;
+    --cream:#FAF8F3;
+    --ink:#232323;
+    --muted:#6B7280;
+    --border:#E2DED2;
+    --green:#2F6B4F;
+    --red:#A8432F;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--cream);
+    color:var(--ink);
+    font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    line-height:1.55;
+  }
+  .display{font-family:Georgia,"Iowan Old Style","Palatino Linotype",serif;}
+  .wrap{max-width:720px;margin:0 auto;padding:0 20px 80px;}
+
+  .setup-banner{
+    background:#5C2A20;color:#fff;font-size:13px;text-align:center;padding:10px 16px;
+    display:none;
+  }
+  .setup-banner.show{display:block;}
+  .setup-banner code{background:rgba(255,255,255,0.15);padding:1px 5px;border-radius:4px;}
+
+  header.top{
+    background:var(--navy);
+    color:#fff;
+    padding:22px 20px 18px;
+    border-bottom:4px solid var(--gold);
+  }
+  header.top .inner{max-width:720px;margin:0 auto;display:flex;align-items:center;gap:14px;}
+  .seal{
+    width:44px;height:44px;border-radius:50%;
+    border:2px solid var(--gold);
+    display:flex;align-items:center;justify-content:center;
+    font-family:Georgia,serif;font-weight:700;font-size:13px;letter-spacing:0.5px;
+    color:var(--gold-light);flex-shrink:0;
+    background:radial-gradient(circle,rgba(184,134,59,0.15) 0%,transparent 70%);
+  }
+  header.top h1{font-size:16px;margin:0;font-weight:600;letter-spacing:0.2px;}
+  header.top p{margin:2px 0 0;font-size:12.5px;color:#C7CEDC;}
+
+  .progress-track{
+    height:5px;background:rgba(255,255,255,0.15);border-radius:3px;margin-top:16px;overflow:hidden;
+  }
+  .progress-fill{height:100%;background:var(--gold);transition:width .35s ease;}
+  .step-label{font-size:11px;color:#B9C2D6;margin-top:6px;letter-spacing:0.3px;text-transform:uppercase;}
+
+  main{padding-top:28px;}
+  .card{
+    background:#fff;border:1px solid var(--border);border-radius:10px;
+    padding:26px 24px;margin-bottom:20px;
+  }
+  h2.section-title{
+    font-size:20px;margin:0 0 4px;color:var(--navy);
+  }
+  .section-sub{color:var(--muted);font-size:13.5px;margin:0 0 22px;}
+
+  .field{margin-bottom:20px;}
+  .field label.q{display:block;font-weight:600;font-size:14.5px;margin-bottom:8px;color:var(--ink);}
+  select, input[type=text], textarea{
+    width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:6px;
+    font-size:14.5px;font-family:inherit;background:#fff;color:var(--ink);
+  }
+  textarea{resize:vertical;min-height:80px;}
+  select:focus, input:focus, textarea:focus{outline:2px solid var(--gold);outline-offset:1px;}
+
+  .likert-item{margin-bottom:22px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+  .likert-item:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+  .likert-q{font-size:14.5px;font-weight:600;margin-bottom:10px;color:var(--ink);}
+  .likert-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .likert-btn{
+    flex:1 1 60px;min-width:56px;padding:10px 4px;border:1.5px solid var(--border);
+    border-radius:7px;background:#fff;cursor:pointer;text-align:center;
+    font-size:13px;font-weight:600;color:var(--muted);transition:all .15s ease;
+  }
+  .likert-btn:hover{border-color:var(--gold);}
+  .likert-btn.selected{
+    background:var(--navy);border-color:var(--navy);color:#fff;
+  }
+  .likert-caption{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin-top:5px;}
+
+  .consent-box{
+    background:#F3F0E8;border:1px solid var(--border);border-radius:8px;
+    padding:16px 18px;font-size:13.5px;color:#444;margin-bottom:16px;
+  }
+  .consent-box p{margin:0 0 10px;}
+  .consent-box p:last-child{margin-bottom:0;}
+  .consent-check{
+    display:flex;align-items:flex-start;gap:10px;padding:14px;
+    background:#fff;border:1.5px solid var(--gold);border-radius:8px;cursor:pointer;
+  }
+  .consent-check input{margin-top:3px;width:16px;height:16px;flex-shrink:0;}
+  .consent-check span{font-size:13.5px;font-weight:600;}
+
+  .nav-row{display:flex;justify-content:space-between;gap:12px;margin-top:4px;}
+  button.btn{
+    padding:12px 22px;border-radius:7px;font-size:14.5px;font-weight:600;
+    cursor:pointer;border:none;font-family:inherit;
+  }
+  .btn-primary{background:var(--navy);color:#fff;}
+  .btn-primary:hover{background:var(--navy-light);}
+  .btn-primary:disabled{background:#B7BCC7;cursor:not-allowed;}
+  .btn-ghost{background:transparent;color:var(--navy);border:1.5px solid var(--border);}
+  .btn-ghost:hover{border-color:var(--navy);}
+
+  .warn{color:var(--red);font-size:12.5px;margin-top:10px;display:none;}
+  .warn.show{display:block;}
+
+  .review-block{margin-bottom:16px;}
+  .review-block h3{font-size:13.5px;color:var(--navy);margin:0 0 8px;text-transform:uppercase;letter-spacing:0.3px;}
+  .review-line{font-size:13px;color:#444;padding:4px 0;border-bottom:1px dashed var(--border);}
+  .review-line b{color:var(--ink);}
+
+  .thankyou{text-align:center;padding:50px 20px;}
+  .thankyou .seal-big{
+    width:76px;height:76px;border-radius:50%;border:2.5px solid var(--gold);
+    display:flex;align-items:center;justify-content:center;margin:0 auto 18px;
+    font-family:Georgia,serif;font-weight:700;color:var(--gold);font-size:22px;
+  }
+  .thankyou h2{color:var(--navy);}
+  .thankyou p{color:var(--muted);max-width:420px;margin:8px auto 0;font-size:14px;}
+  .ref-code{
+    display:inline-block;margin-top:16px;padding:8px 14px;background:#F3F0E8;
+    border-radius:6px;font-size:12px;color:var(--muted);font-family:monospace;
+  }
+
+  footer.foot{
+    text-align:center;font-size:11.5px;color:var(--muted);padding:18px 20px 40px;
+  }
+
+  @media (max-width:480px){
+    .likert-btn{font-size:12px;padding:9px 2px;}
+    .card{padding:20px 16px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="setup-banner" id="setupBanner">
+  &#9888; Setup incomplete: this survey isn't connected to Google Forms yet, so responses will not be saved.
+  Edit the <code>GOOGLE_FORM_URL</code>, <code>ENTRY_RESPONSE_ID</code> and <code>ENTRY_ANSWERS_JSON</code> values near the top of the script before sharing this link.
+</div>
+
+<header class="top">
+  <div class="inner">
+    <div class="seal">OAG</div>
+    <div>
+      <h1 class="display">Communication Strategies &amp; Organisational Visibility</h1>
+      <p>Office of the Auditor-General, Kenya &mdash; Research Study</p>
+    </div>
+  </div>
+  <div class="wrap" style="padding:0;">
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="step-label" id="stepLabel">Consent</div>
+  </div>
+</header>
+
+<div class="wrap">
+  <main id="mainArea"></main>
+</div>
+
+<footer class="foot">Responses are submitted directly to the researcher's Google Sheet. No names are collected.</footer>
+
+<script>
+/* ===========================================================
+   CONFIGURE THIS BEFORE PUBLISHING
+   1. Create a Google Form with two questions, in this order:
+        - "Response ID" (Short answer)
+        - "Answers Data" (Paragraph)
+   2. In the form editor, use the three-dot menu -> "Get pre-filled link".
+      Fill both fields with anything, click "Get link", then open that link.
+   3. The URL will contain two parameters like entry.123456789=... and
+      entry.987654321=... -- copy those two numbers below.
+   4. Replace GOOGLE_FORM_URL with your form's action URL: take the form's
+      normal URL (ends in /viewform) and replace "viewform" with "formResponse".
+   Full walkthrough is in README_Hosting_Instructions.md.
+=========================================================== */
+const GOOGLE_FORM_URL      = 'https://docs.google.com/forms/d/e/1FAIpQLSdlkpHJlu_7P-bYNXyPLV6dWNdmPfO5SdyvUdbLf2iUwHS_bw/formResponse';
+const ENTRY_RESPONSE_ID    = 'entry.1996649981';
+const ENTRY_ANSWERS_JSON   = 'entry.1819527317';
+
+const CONFIGURED = !GOOGLE_FORM_URL.includes('REPLACE_WITH')
+                 && !ENTRY_RESPONSE_ID.includes('REPLACE_WITH')
+                 && !ENTRY_ANSWERS_JSON.includes('REPLACE_WITH');
+
+/* ---------------------------------------------------------
+   DATA MODEL
+--------------------------------------------------------- */
+const SECTIONS = [
+  { id:'consent', type:'consent', label:'Consent' },
+  { id:'background', type:'fields', label:'Background', title:'Section I: Background Information',
+    sub:'A few quick details before you begin.',
+    fields:[
+      { key:'gender', q:'Gender', options:['Male','Female','Prefer not to say'] },
+      { key:'age', q:'Age', options:['Below 25 years','26–35 years','36–45 years','Above 45 years'] },
+      { key:'category', q:'Which best describes your role at OAG?', options:[
+          'Customer Service staff','Executive Office staff','Corporate Communications staff','Audit staff (Nairobi regional office)'
+        ] },
+      { key:'duration', q:'Duration of engagement with the Office of the Auditor-General', options:[
+          'Less than 1 year','1–5 years','6–10 years','More than 10 years'
+        ] }
+    ]
+  },
+  { id:'internal', type:'likert', label:'Internal Comms', title:'Section II: Internal Communication Strategies',
+    sub:'Indicate how much you agree with each statement.',
+    items:[
+      'OAG communicates its activities and goals to employees effectively.',
+      'I receive information on organisational activities in a timely manner.',
+      'Internal communication channels allow for feedback from employees to management.',
+      'I understand OAG\u2019s role and its contribution to public accountability.',
+      'Effective internal communication enables employees to promote a positive image of OAG.',
+      'I am satisfied with the channels (email, intranet, meetings, memos) used for internal communication at OAG.'
+    ]
+  },
+  { id:'external', type:'likert', label:'External Comms', title:'Section III: External Communication Strategies',
+    sub:'Indicate how much you agree with each statement.',
+    items:[
+      'OAG\u2019s mandate is clearly communicated to external stakeholders.',
+      'Appropriate communication channels are used by OAG to engage external stakeholders.',
+      'OAG provides information that is accessible concerning its findings and audit activities.',
+      'OAG\u2019s external communication activities enhance stakeholders\u2019 understanding of its role and responsibilities.',
+      'OAG effectively engages the media and other key external stakeholders.',
+      'OAG responds promptly to external inquiries and information requests.'
+    ]
+  },
+  { id:'social', type:'likert', label:'Social Media', title:'Section IV: Social Media Communication Strategies',
+    sub:'Indicate how much you agree with each statement.',
+    items:[
+      'Social media platforms are actively used by OAG to share information with the public.',
+      'Social media platforms improve public access to information about OAG\u2019s activities.',
+      'OAG responds to feedback from stakeholders through its social media platforms.',
+      'Public awareness of OAG\u2019s mandate increases as a result of social media communication.',
+      'Digital communication through social media has strengthened engagement between OAG and its stakeholders.',
+      'OAG\u2019s social media content is timely and relevant.'
+    ]
+  },
+  { id:'context', type:'likert', label:'Context', title:'Section V: Organisational & Environmental Context',
+    sub:'These questions cover factors that may shape how communication strategies work in practice.',
+    items:[
+      'OAG\u2019s organisational culture is open and supportive of transparent communication.',
+      'Top management/leadership actively supports and resources communication initiatives at OAG.',
+      'OAG has adequate ICT infrastructure and digital tools to support its communication strategies.',
+      'The external political and regulatory environment affects how freely OAG can communicate its audit findings.'
+    ]
+  },
+  { id:'visibility', type:'likert', label:'Visibility', title:'Section VI: Organisational Visibility',
+    sub:'Indicate how much you agree with each statement.',
+    items:[
+      'Stakeholders are aware of OAG\u2019s mandate and functions.',
+      'OAG\u2019s activities and achievements are visible to the public.',
+      'Stakeholders can easily access information about OAG\u2019s activities and services.',
+      'OAG has established a positive reputation among its stakeholders.',
+      'Communication activities have improved public understanding of OAG\u2019s role and responsibilities.',
+      'OAG is recognised as a credible institution that promotes accountability.',
+      'OAG\u2019s communication efforts have strengthened stakeholder engagement with the institution.'
+    ]
+  },
+  { id:'openended', type:'text', label:'Feedback', title:'Section VII: Your Perspective (optional)',
+    sub:'These open questions help us understand context behind the ratings above.',
+    items:[
+      'What challenges affect effective communication between OAG and its stakeholders?',
+      'Which communication strategies do you believe would improve OAG\u2019s visibility?',
+      'What recommendations would you suggest for strengthening OAG\u2019s communication practices?'
+    ]
+  },
+  { id:'review', type:'review', label:'Review' }
+];
+
+const LIKERT_LABELS = ['1','2','3','4','5'];
+const LIKERT_ENDS = ['Strongly Disagree','Strongly Agree'];
+
+let current = 0;
+let consentGiven = false;
+let answers = { background:{}, internal:{}, external:{}, social:{}, context:{}, visibility:{}, openended:{} };
+
+const mainArea = document.getElementById('mainArea');
+const progressFill = document.getElementById('progressFill');
+const stepLabel = document.getElementById('stepLabel');
+
+if(!CONFIGURED){
+  document.getElementById('setupBanner').classList.add('show');
+}
+
+function updateProgress(){
+  const pct = Math.round((current/(SECTIONS.length-1))*100);
+  progressFill.style.width = pct+'%';
+  stepLabel.textContent = SECTIONS[current].label + ' \u2022 Step ' + (current+1) + ' of ' + SECTIONS.length;
+}
+
+function render(){
+  updateProgress();
+  const s = SECTIONS[current];
+  let html = '<div class="card">';
+
+  if(s.type==='consent'){
+    html += `
+      <h2 class="section-title display">You're invited to take part in a research study</h2>
+      <p class="section-sub">The Role of Internal, External and Social Media Communication Strategies in Enhancing Organisational Visibility &mdash; a study on the Office of the Auditor-General, Kenya.</p>
+      <div class="consent-box">
+        <p><b>Purpose:</b> This study examines how internal communication, external communication and social media communication contribute to OAG's organisational visibility. Your responses support an academic research proposal at St. Paul's University and may inform recommendations for strengthening OAG's communication practices.</p>
+        <p><b>Participation:</b> Taking part is voluntary and takes about 10&ndash;15 minutes. You may skip any question you're uncomfortable answering, and you may stop at any time without consequence.</p>
+        <p><b>Confidentiality:</b> Your responses are anonymous. No names are collected. Data is used strictly for academic purposes and stored securely, accessible only to the researcher and academic supervisor.</p>
+        <p><b>Risk &amp; benefit:</b> There is no anticipated risk beyond sharing your professional opinion. There is no direct personal benefit or compensation, though findings may help strengthen OAG's communication framework.</p>
+      </div>
+      <label class="consent-check">
+        <input type="checkbox" id="consentCheck" ${consentGiven?'checked':''} onchange="toggleConsent(this.checked)">
+        <span>I have read the information above, understand my participation is voluntary, and I agree to take part in this study.</span>
+      </label>
+      <div class="warn" id="consentWarn">Please confirm consent to continue.</div>
+      <div class="nav-row" style="margin-top:22px;justify-content:flex-end;">
+        <button class="btn btn-primary" onclick="goNext()">Begin Survey</button>
+      </div>
+    `;
+  }
+
+  else if(s.type==='fields'){
+    html += `<h2 class="section-title display">${s.title}</h2><p class="section-sub">${s.sub}</p>`;
+    s.fields.forEach((f,i)=>{
+      const val = answers.background[f.key] || '';
+      html += `<div class="field"><label class="q">${f.q}</label>
+        <select onchange="setField('background','${f.key}',this.value)">
+          <option value="">Select...</option>
+          ${f.options.map(o=>`<option value="${o}" ${val===o?'selected':''}>${o}</option>`).join('')}
+        </select>
+      </div>`;
+    });
+    html += navButtons();
+  }
+
+  else if(s.type==='likert'){
+    html += `<h2 class="section-title display">${s.title}</h2><p class="section-sub">${s.sub}</p>`;
+    s.items.forEach((q,i)=>{
+      const sel = answers[s.id][i];
+      html += `<div class="likert-item">
+        <div class="likert-q">${i+1}. ${q}</div>
+        <div class="likert-row">
+          ${LIKERT_LABELS.map(v=>`<div class="likert-btn ${sel==v?'selected':''}" onclick="setLikert('${s.id}',${i},'${v}')">${v}</div>`).join('')}
+        </div>
+        <div class="likert-caption"><span>${LIKERT_ENDS[0]}</span><span>${LIKERT_ENDS[1]}</span></div>
+      </div>`;
+    });
+    html += navButtons();
+  }
+
+  else if(s.type==='text'){
+    html += `<h2 class="section-title display">${s.title}</h2><p class="section-sub">${s.sub}</p>`;
+    s.items.forEach((q,i)=>{
+      const val = answers.openended[i] || '';
+      html += `<div class="field"><label class="q">${q}</label>
+        <textarea onchange="setField('openended',${i},this.value)">${val}</textarea>
+      </div>`;
+    });
+    html += navButtons();
+  }
+
+  else if(s.type==='review'){
+    html += `<h2 class="section-title display">Review your responses</h2><p class="section-sub">Please check your answers before submitting. You can go back to change anything.</p>`;
+    SECTIONS.filter(sec=>sec.type==='likert').forEach(sec=>{
+      html += `<div class="review-block"><h3>${sec.title.replace(/^Section [A-Z]+: /,'')}</h3>`;
+      sec.items.forEach((q,i)=>{
+        html += `<div class="review-line">${q} &mdash; <b>${answers[sec.id][i] || '<span style=\'color:#A8432F\'>Not answered</span>'}</b></div>`;
+      });
+      html += `</div>`;
+    });
+    html += `<div class="nav-row" style="margin-top:10px;">
+        <button class="btn btn-ghost" onclick="goBack()">Back</button>
+        <button class="btn btn-primary" id="submitBtn" onclick="submitSurvey()">Submit Response</button>
+      </div>`;
+  }
+
+  html += '</div>';
+  mainArea.innerHTML = html;
+}
+
+function navButtons(){
+  return `
+    <div class="warn" id="stepWarn">Please answer all questions before continuing.</div>
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="goBack()" ${current===0?'disabled':''}>Back</button>
+      <button class="btn btn-primary" onclick="goNext()">Continue</button>
+    </div>
+  `;
+}
+
+function toggleConsent(checked){ consentGiven = checked; }
+
+function setField(sectionId, key, val){
+  answers[sectionId][key] = val;
+}
+function setLikert(sectionId, idx, val){
+  answers[sectionId][idx] = val;
+  render();
+}
+
+function validateCurrent(){
+  const s = SECTIONS[current];
+  if(s.type==='consent'){
+    if(!consentGiven){ document.getElementById('consentWarn').classList.add('show'); return false; }
+    return true;
+  }
+  if(s.type==='fields'){
+    for(const f of s.fields){
+      if(!answers.background[f.key]){
+        const w=document.getElementById('stepWarn'); if(w) w.classList.add('show');
+        return false;
+      }
+    }
+    return true;
+  }
+  if(s.type==='likert'){
+    for(let i=0;i<s.items.length;i++){
+      if(!answers[s.id][i]){
+        const w=document.getElementById('stepWarn'); if(w) w.classList.add('show');
+        return false;
+      }
+    }
+    return true;
+  }
+  return true; // text section optional
+}
+
+function goNext(){
+  if(!validateCurrent()) return;
+  if(current < SECTIONS.length-1){ current++; render(); window.scrollTo(0,0); }
+}
+function goBack(){
+  if(current>0){ current--; render(); window.scrollTo(0,0); }
+}
+
+async function submitSurvey(){
+  const id = 'resp_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+  const payload = { id, submittedAt: new Date().toISOString(), answers };
+
+  const btn = document.getElementById('submitBtn');
+  if(btn){ btn.disabled = true; btn.textContent = 'Submitting...'; }
+
+  if(CONFIGURED){
+    try{
+      const formData = new FormData();
+      formData.append(ENTRY_RESPONSE_ID, id);
+      formData.append(ENTRY_ANSWERS_JSON, JSON.stringify(payload));
+      await fetch(GOOGLE_FORM_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: formData
+      });
+    }catch(e){
+      console.error('Submission error:', e);
+    }
+  }else{
+    console.warn('Google Form not configured — response was not sent anywhere. See setup instructions at the top of the script.');
+  }
+
+  showThankYou(id);
+}
+
+function showThankYou(id){
+  document.querySelector('header .progress-track').style.display='none';
+  document.querySelector('header .step-label').style.display='none';
+  mainArea.innerHTML = `
+    <div class="thankyou">
+      <div class="seal-big">OAG</div>
+      <h2 class="display">Thank you for participating</h2>
+      <p>Your response has been recorded. It will be analysed together with other responses as part of this academic research study.</p>
+      <div class="ref-code">Reference: ${id}</div>
+    </div>
+  `;
+}
+
+render();
+</script>
+</body>
+</html>
